@@ -1,0 +1,295 @@
+---
+name: "Postly API"
+description: "Backend API for Postly — a modern blog platform built with Node.js, Express, and MongoDB. Handles authentication, post management, comments, and likes with production-ready structure."
+version: 1
+
+language: "Node.js (TypeScript)"
+framework: "Express.js"
+database: "MongoDB"
+caching: "Redis (optional)"
+security: "JWT authentication, input validation with express-validator"
+versioning: "v1"
+
+models:
+  User:
+    _id:
+      type: "string"
+      trim: true
+      required: true
+    username:
+      type: "string"
+      lowercase: true
+      trim: true
+      required: true
+      minLength: 3
+      maxLength: 20
+    email:
+      type: "string"
+      lowercase: true
+      trim: true
+      unique: true
+      required: true
+    password:
+      type: "string"
+      trim: true
+      required: true
+    blogPosts:
+      type: "array"
+      items: "ObjectId (ref to BlogPost)"
+      default: []
+    createdAt:
+      type: "Date"
+      required: true
+    updatedAt:
+      type: "Date"
+      required: true
+
+  BlogPost:
+    _id:
+      type: "string"
+      trim: true
+      required: true
+    author:
+      type: "ObjectId (ref to User)"
+      required: true
+    category:
+      type: "string"
+      trim: true
+      required: true
+      minLength: 3
+      maxLength: 30
+    title:
+      type: "string"
+      trim: true
+      required: true
+      minLength: 5
+      maxLength: 100
+    content:
+      type: "string"
+      trim: true
+      required: true
+      minLength: 100
+      maxLength: 2000
+    comments:
+      type: "array"
+      items: "ObjectId (ref to Comment)"
+      default: []
+    likes:
+      type: "array"
+      items: "ObjectId (ref to User)"
+      default: []
+    views:
+      type: "array"
+      items: "ObjectId (ref to User)"
+      default: []
+    createdAt:
+      type: "Date"
+      required: true
+    updatedAt:
+      type: "Date"
+      required: true
+
+  Comment:
+    _id:
+      type: "string"
+      trim: true
+      required: true
+    author:
+      type: "ObjectId (ref to User)"
+      required: true
+    likes:
+      type: "array"
+      items: "ObjectId (ref to User)"
+      default: []
+    content:
+      type: "string"
+      trim: true
+      required: true
+      minLength: 1
+      maxLength: 300
+    type:
+      enum: ["text"]
+      required: true
+      trim: true
+    createdAt:
+      type: "Date"
+      required: true
+    updatedAt:
+      type: "Date"
+      required: true
+
+authentication: "Jsonwebtoken (access and refresh token)"
+
+middlewares:
+  verifyAccessToken: "Verifies a user's access token"
+  verifyRefreshToken: "Verifies a user's refresh token"
+  expressValidatorHandler: "Validates input data from express-validator"
+
+resources:
+  authentication:
+    - resource: "/api/v1/auth/signup"
+      purpose: "Creates an account for a user"
+      method: "POST"
+      body:
+        email: "string"
+        password: "string"
+        username: "string"
+
+    - resource: "/api/v1/auth/login"
+      purpose: "Logs a user into their already created account"
+      method: "POST"
+      body:
+        email: "string"
+        password: "string"
+
+    - resource: "/api/v1/auth/me"
+      purpose: "Returns the current user's auth state"
+      method: "GET"
+      headers:
+        accessToken: "string"
+
+    - resource: "/api/v1/auth/refresh"
+      purpose: "Refreshes a user's access token"
+      method: "GET"
+      headers:
+        refreshToken: "string"
+
+  blogPosts:
+    - resource: "/api/v1/posts?page=1&searchQuery=remote"
+      purpose: "Fetches blog posts with pagination"
+      method: "GET"
+      queryParams: ["page", "searchQuery"]
+      headers:
+        accessToken: "string"
+
+    - resource: "/api/v1/posts/liked?page=1&searchQuery=remote"
+      purpose: "Fetches a user's liked blog posts with pagination"
+      method: "GET"
+      queryParams: ["page", "searchQuery"]
+      headers:
+        accessToken: "string"
+
+    - resource: "/api/v1/posts/created?page=1&searchQuery=remote"
+      purpose: "Fetches a user's created blog posts with pagination"
+      method: "GET"
+      queryParams: ["page", "searchQuery"]
+      headers:
+        accessToken: "string"
+
+    - resource: "/api/v1/posts/archived?page=1&searchQuery=remote"
+      purpose: "Fetches a user's archived blog posts with pagination"
+      method: "GET"
+      queryParams: ["page", "searchQuery"]
+      headers:
+        accessToken: "string"
+
+    - resource: "/api/v1/posts"
+      purpose: "Creates a blog post"
+      method: "POST"
+      body:
+        category: "string"
+        title: "string"
+        author: "ObjectId (ref to User)"
+        content: "string"
+      headers:
+        accessToken: "string"
+
+    - resource: "/api/v1/posts/:postId"
+      purpose: "Fetches a single blog post"
+      method: "GET"
+      params: ["postId"]
+      headers:
+        accessToken: "string"
+
+    - resource: "/api/v1/posts/:postId/view"
+      purpose: "Registers a user's view on a post"
+      method: "POST"
+      params: ["postId"]
+      headers:
+        accessToken: "string"
+
+    - resource: "/api/v1/posts/:postId/archive"
+      purpose: "Archives or unarchives a blog post"
+      method: "PATCH"
+      params: ["postId"]
+      headers:
+        accessToken: "string"
+
+    - resource: "/api/v1/posts/:postId/comments"
+      purpose: "Fetches all comments for a blog post"
+      method: "GET"
+      params: ["postId"]
+      headers:
+        accessToken: "string"
+
+    - resource: "/api/v1/posts/:postId"
+      purpose: "Likes or unlikes a post"
+      method: "PATCH"
+      params: ["postId"]
+      headers:
+        accessToken: "string"
+
+  comments:
+    - resource: "/api/v1/comments/:commentId/:postId"
+      purpose: "Likes or unlikes a comment"
+      method: "PATCH"
+      params: ["commentId", "postId"]
+      headers:
+        accessToken: "string"
+
+    - resource: "/api/v1/comments/:commentId/:postId"
+      purpose: "Deletes a user's comment"
+      method: "DELETE"
+      params: ["commentId", "postId"]
+      headers:
+        accessToken: "string"
+
+  users:
+    - resource: "/api/v1/profile/me"
+      purpose: "Fetches the current user's profile details"
+      method: "GET"
+      headers:
+        accessToken: "string"
+
+dataBeingSentToFrontend:
+  blogPost:
+    _id: "string"
+    isLikedByCurrentUser: "boolean"
+    author:
+      _id: "string"
+      username: "string"
+    category: "string"
+    title: "string"
+    content: "string"
+    comments: "number"
+    likes: "number"
+    views: "number"
+    createdAt: "string"
+    updatedAt: "string"
+
+  profile:
+    _id: "string"
+    username: "string"
+    email: "string"
+    createdAt: "string"
+    updatedAt: "string"
+
+  comment:
+    _id: "string"
+    isLikedByCurrentUser: "boolean"
+    author:
+      _id: "string"
+      username: "string"
+      createdAt: "Date"
+      updatedAt: "Date"
+    likes: "number"
+    content: "string"
+    type:
+      enum: ["text"]
+    createdAt: "Date"
+    updatedAt: "Date"
+
+pagination:
+  currentPage: "number"
+  totalPages: "number"
+  totalItems: "number"
