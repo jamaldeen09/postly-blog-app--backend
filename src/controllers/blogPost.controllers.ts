@@ -286,7 +286,7 @@ const getSingleBlogPost = async (
                     success: false,
                     message: "The creator of this blog post has archived it",
                     statusCode: 406,
-                })
+                });
 
 
             // ** Mutate the post to return the expected data ** \\
@@ -399,7 +399,8 @@ const newBlogPostView = async (
                 new: true
             }
         ).lean<IBlogPostQuery>()
-            .select("_id author category title content comments likes views createdAt updatedAt isArchived");
+            .select("_id author category title content comments likes views createdAt updatedAt isArchived")
+            .populate({ path: "author", model: "User", select: "_id username" });
 
         if (!updatedPost) {
             return res.status(404).json({
