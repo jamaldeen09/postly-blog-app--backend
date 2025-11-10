@@ -15,7 +15,7 @@ const cacheStore: Map<string, string> = new Map();
 // ** Global middlewares ** \\
 app.use(express.json());
 app.use(cors({
-    origin: "http://localhost:3000"
+    origin: ["http://localhost:3000", "https://postly-blog-app-frontend-blush.vercel.app"]
 }));
    
 
