@@ -2,7 +2,7 @@
   "name": "postly-api",
   "version": "1.0.0",
   "description": "Backend API for Postly — a modern blog platform built with Node.js, Express, and MongoDB. Handles authentication, post management, comments, and likes with production-ready structure.",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "dev": "nodemon src/server.ts",
     "build": "tsc",
