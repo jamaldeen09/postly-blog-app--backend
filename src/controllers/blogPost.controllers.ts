@@ -534,7 +534,7 @@ const archiveOrUnarchiveBlogPost = async (
         // ** Return a success response ** \\
         return res.status(200).json({
             success: true,
-            message: `Post has been successfully ${postBeingArchived.isArchived ? "archived" : "removed from your archived blog posts"}`,
+            message: `Post has been successfully ${!postBeingArchived.isArchived ? "archived" : "removed from your archived blog posts"}`,
             statusCode: 200,
         });
     } catch (err) {
