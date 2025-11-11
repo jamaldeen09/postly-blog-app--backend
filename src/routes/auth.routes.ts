@@ -2,7 +2,7 @@
 import express from "express"
 import ValidationHandler from "../services/validation.services.js";
 import { expressValidationHandler, verifyAccessToken, verifyRefreshToken } from "../middlewares/auth.middlewares.js";
-import { getAuthStateController, loginController, refreshTokenController, signupController } from "../controllers/auth.controllers.js";
+import { getAuthStateController, loginController, logoutController, refreshTokenController, signupController } from "../controllers/auth.controllers.js";
 
 const authRouter: express.Router = express.Router();
 
@@ -35,5 +35,11 @@ authRouter.get("/refresh",
     verifyRefreshToken,
     refreshTokenController,
 );
+
+// ** Logs a user out (clears their simulated session) ** \\
+authRouter.post("/logout",
+    verifyAccessToken,
+    logoutController,
+)
 
 export default authRouter

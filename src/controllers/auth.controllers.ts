@@ -6,7 +6,7 @@ import { LoginCredentials, SignupCredentials } from "../types/credentials.types.
 import bcrypt from "bcrypt"
 import { prepareTokens } from "../services/auth.services.js";
 import mongoose from "mongoose";
-import { readOperation, writeOperation } from "../services/cache.services.js";
+import { deleteOperation, readOperation, writeOperation } from "../services/cache.services.js";
 import { UserProfile } from "../types/profile.types.js";
 
 
@@ -257,10 +257,52 @@ const refreshTokenController = async (
     }
 }
 
+const logoutController = async (
+    req: Request,
+    res: ApiResponse
+): ControllerResponse => {
+    try {
+        const requestingUsersId = ((req as ConfiguredRequest).accessTokenPayload).userId;
+
+        // ** Check if the users account exists ** \\
+        const user = await User.exists({ _id: requestingUsersId })
+
+        if (!user)
+            return res.status(404).json({
+                success: false,
+                message: "Account was not found, please register",
+                statusCode: 404,
+                error: "Not found"
+            });
+
+        // ** Clear the users session ** \\
+        deleteOperation("cacheKey", `user:${user._id}`, undefined);
+
+        // ** Return a success response ** \\
+        return res.status(200).json({
+            success: true,
+            message: "Successfully logged out",
+            statusCode: 200,
+        })
+    } catch (err) {
+        console.error(`Error occured in "logout" controller in file "auth.controllers.ts": ${err}`);
+
+        // ** Error handling ** \\
+        return res.status(500).json({
+            success: false,
+            message: "A server error occured while trying to log you out of your account",
+            statusCode: 500,
+            error: "Internal server error"
+        })
+    }
+}
+
+
 
 export {
     signupController,
     loginController,
     getAuthStateController,
     refreshTokenController,
+    logoutController
 }
