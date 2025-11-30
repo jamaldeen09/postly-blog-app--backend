@@ -5,6 +5,7 @@ import authRouter from "./routes/auth.routes.js";
 import profileRouter from "./routes/profile.routes.js";
 import blogPostRouter from "./routes/blogPost.routes.js";
 import commentRouter from "./routes/comment.routes.js";
+import envData from "./config/env.config.js";
 
 // ** Express + server initialization ** \\
 const app: Application = express();
@@ -15,7 +16,7 @@ const cacheStore: Map<string, string> = new Map();
 // ** Global middlewares ** \\
 app.use(express.json());
 app.use(cors({
-    origin: ["http://localhost:3000", "https://postly-frontend.vercel.app"]
+    origin: [envData.FRONTEND_URL]
 }));
    
 

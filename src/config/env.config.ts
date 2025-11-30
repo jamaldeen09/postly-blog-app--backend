@@ -14,6 +14,7 @@ interface EnvData {
     MONGO_URI: string;
     PORT: string
     HOST_URL: string;
+    FRONTEND_URL: string;
 }
 
 // ** Actual data ** \\
@@ -23,6 +24,7 @@ const envData: EnvData = {
     MONGO_URI: process.env.MONGO_URI!,
     PORT: process.env.PORT!,
     HOST_URL: process.env.HOST_URL!,
+    FRONTEND_URL: process.env.FRONTEND_URL!,
 }
 
 

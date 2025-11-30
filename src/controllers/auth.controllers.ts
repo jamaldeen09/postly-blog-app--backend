@@ -119,7 +119,7 @@ const loginController = async (
         writeOperation(cacheData as UserProfile, `user:${stringifiedUserId}`);
 
         // ** Send tokens to the frontend as part of the response ** \\
-        return res.status(201).json({
+        return res.status(200).json({
             success: true,
             message: "Successfully logged in",
             statusCode: 201,
